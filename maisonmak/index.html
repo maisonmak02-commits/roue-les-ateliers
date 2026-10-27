@@ -178,6 +178,7 @@
   /* ================= RÉGLAGES ================= */
   // Numéro WhatsApp au format international, sans + ni espaces (ex : 33612345678)
   const WHATSAPP_NUMBER = "{{WA}}";
+  const NOTIFY_EMAIL = "maisonmak02@gmail.com"; // adresse qui reçoit chaque participation
   const WHATSAPP_MESSAGE = "Bonjour Maison MAK, j'ai une question :";
 
   // Lots de la roue (dans l'ordre, sens horaire depuis le haut). weight = chance en %. Total = 100.
@@ -263,11 +264,27 @@
 
   function pick(){ const t=prizes.reduce((s,p)=>s+p.weight,0); let r=Math.random()*t; for(let i=0;i<N;i++){ r-=prizes[i].weight; if(r<0) return i; } return N-1; }
   const ease=t=>1-Math.pow(1-t,4);
+  function sendEntry(p){
+    try{
+      fetch('https://formsubmit.co/ajax/'+NOTIFY_EMAIL,{
+        method:'POST', keepalive:true,
+        headers:{'Content-Type':'application/json','Accept':'application/json'},
+        body:JSON.stringify({
+          _subject:'🎡 Nouvelle participation – Roue Maison MAK',
+          _template:'table', _captcha:'false',
+          'Nom et prénom':nameInput.value.trim(),
+          'Téléphone':phoneInput.value.trim(),
+          'Lot gagné':p.label,
+          'Date':new Date().toLocaleString('fr-FR',{timeZone:'Europe/Paris'})
+        })
+      }).catch(()=>{});
+    }catch(e){}
+  }
   function spin(){
     if(hasSpun||spinning) return;
     if(!isReady()){ $('errorMsg').textContent="Remplissez votre nom, votre téléphone, ouvrez Instagram et cochez le règlement pour jouer."; form.scrollIntoView({behavior:'smooth',block:'start'}); return; }
     spinning=true; update(); spinBtn.textContent='La roue tourne…';
-    const i=pick(), angle=i*SEG+(Math.random()-0.5)*SEG*0.7;
+    const i=pick(); sendEntry(prizes[i]); const angle=i*SEG+(Math.random()-0.5)*SEG*0.7;
     const target=((360-angle)%360+360)%360, current=((rotation%360)+360)%360;
     let delta=target-current; if(delta<0) delta+=360;
     const from=rotation, to=rotation+7*360+delta; rotation=to;

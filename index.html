@@ -210,6 +210,7 @@
   /* ================= RÉGLAGES ================= */
   // Numéro WhatsApp au format international, sans + ni espaces (ex : 33612345678)
   const WHATSAPP_NUMBER = "33767442604";
+  const NOTIFY_EMAIL = "atlrs.pantin@gmail.com"; // adresse qui reçoit chaque participation
   const WHATSAPP_MESSAGE = "Bonjour Les Ateliers, j'ai une question :";
 
   // Lots tels qu'ils sont dessinés sur la roue.
@@ -257,6 +258,22 @@
   }
   const ease=t=>1-Math.pow(1-t,4);
 
+  function sendEntry(p){
+    try{
+      fetch('https://formsubmit.co/ajax/'+NOTIFY_EMAIL,{
+        method:'POST', keepalive:true,
+        headers:{'Content-Type':'application/json','Accept':'application/json'},
+        body:JSON.stringify({
+          _subject:'🎡 Nouvelle participation – Roue Les Ateliers',
+          _template:'table', _captcha:'false',
+          'Nom et prénom':nameInput.value.trim(),
+          'Téléphone':phoneInput.value.trim(),
+          'Lot gagné':p.label,
+          'Date':new Date().toLocaleString('fr-FR',{timeZone:'Europe/Paris'})
+        })
+      }).catch(()=>{});
+    }catch(e){}
+  }
   function spin(){
     if(hasSpun||spinning) return;
     if(!isReady()){
@@ -265,7 +282,7 @@
     }
     spinning=true; update();
     spinBtn.textContent='La roue tourne…';
-    const i=pick(), p=prizes[i];
+    const i=pick(), p=prizes[i]; sendEntry(p);
     const width=p.to-p.from, margin=Math.min(7,width*0.18);
     const angle=p.from+margin+Math.random()*(width-2*margin);    // point de la part qui s'arrête sous la flèche
     const target=((360-angle)%360+360)%360;
