@@ -210,7 +210,7 @@
   /* ================= RÉGLAGES ================= */
   // Numéro WhatsApp au format international, sans + ni espaces (ex : 33612345678)
   const WHATSAPP_NUMBER = "33767442604";
-  const NOTIFY_EMAIL = "atlrs.pantin@gmail.com"; // adresse qui reçoit chaque participation
+  const WEB3FORMS_KEY = "2f3e37d9-da45-4165-9762-01c51ea03306"; // clé Web3Forms → emails sur atlrs.pantin@gmail.com
   const WHATSAPP_MESSAGE = "Bonjour Les Ateliers, j'ai une question :";
 
   // Lots tels qu'ils sont dessinés sur la roue.
@@ -260,12 +260,13 @@
 
   function sendEntry(p){
     try{
-      fetch('https://formsubmit.co/ajax/'+NOTIFY_EMAIL,{
+      fetch('https://api.web3forms.com/submit',{
         method:'POST', keepalive:true,
         headers:{'Content-Type':'application/json','Accept':'application/json'},
         body:JSON.stringify({
-          _subject:'🎡 Nouvelle participation – Roue Les Ateliers',
-          _template:'table', _captcha:'false',
+          access_key:WEB3FORMS_KEY,
+          subject:'🎡 Nouvelle participation – Roue Les Ateliers',
+          from_name:'Roue Les Ateliers',
           'Nom et prénom':nameInput.value.trim(),
           'Téléphone':phoneInput.value.trim(),
           'Lot gagné':p.label,
